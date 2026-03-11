@@ -1,4 +1,4 @@
-import "@/App.css";
+import "App.css"; // fixed from '@/App.css'
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -39,7 +39,6 @@ const ProtectedRoute = ({ children }) => {
         setAccessStatus(response.data);
       } catch (error) {
         console.error('Error checking access:', error);
-        // Default to allowing access on error to not block users
         setAccessStatus({ early_access: true, onboarding_complete: true });
       } finally {
         setCheckingAccess(false);
@@ -51,7 +50,6 @@ const ProtectedRoute = ({ children }) => {
     }
   }, [user, loading]);
 
-  // If user data was passed from AuthCallback, skip loading check
   if (location.state?.user && !accessStatus) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -72,12 +70,10 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  // Check if user has early access
   if (accessStatus && !accessStatus.early_access) {
     return <Paywall onAccessGranted={() => setAccessStatus({ ...accessStatus, early_access: true })} />;
   }
 
-  // Check if onboarding is complete
   if (accessStatus && !accessStatus.onboarding_complete) {
     return <Onboarding user={user} onComplete={() => setAccessStatus({ ...accessStatus, onboarding_complete: true })} />;
   }
@@ -89,7 +85,6 @@ const ProtectedRoute = ({ children }) => {
 const AppRouter = () => {
   const location = useLocation();
 
-  // Check URL fragment for session_id SYNCHRONOUSLY during render
   if (location.hash?.includes('session_id=')) {
     return <AuthCallback />;
   }
